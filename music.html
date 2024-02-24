@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Music Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #results {
+            margin-top: 20px;
+        }
+        .video {
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        .video img {
+            width: 100%;
+            height: auto;
+        }
+        .video .info {
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .video .title {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>YouTube Music Search</h1>
+        <input type="text" id="searchInput" placeholder="Enter search query...">
+        <button onclick="search()">Search</button>
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function search() {
+            var searchTerm = document.getElementById("searchInput").value;
+            var apiKey = "AIzaSyAAupl0BF00KNHLJHhztrW4mNWzCpmBOo0";
+            var url = "https://www.googleapis.com/youtube/v3/search?part=snippet&q=" + encodeURIComponent(searchTerm) + "&type=video&key=" + apiKey;
+
+            fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                displayResults(data.items);
+            })
+            .catch(error => console.log('Error:', error));
+        }
+
+        function displayResults(videos) {
+            var resultsContainer = document.getElementById("results");
+            resultsContainer.innerHTML = "";
+
+            if (!videos || videos.length === 0) {
+                resultsContainer.innerHTML = "No videos found.";
+                return;
+            }
+
+            videos.forEach(video => {
+                var videoDiv = document.createElement("div");
+                videoDiv.classList.add("video");
+                videoDiv.onclick = function() {
+                    window.location.href = "video.html?id=" + video.id.videoId;
+                };
+
+                var thumbnail = document.createElement("img");
+                thumbnail.src = video.snippet.thumbnails.medium.url;
+
+                var infoDiv = document.createElement("div");
+                infoDiv.classList.add("info");
+
+                var title = document.createElement("div");
+                title.classList.add("title");
+                title.textContent = video.snippet.title;
+
+                var channel = document.createElement("div");
+                channel.textContent = "Channel: " + video.snippet.channelTitle;
+
+                infoDiv.appendChild(title);
+                infoDiv.appendChild(channel);
+
+                videoDiv.appendChild(thumbnail);
+                videoDiv.appendChild(infoDiv);
+
+                resultsContainer.appendChild(videoDiv);
+            });
+        }
+    </script>
+</body>
+</html>
