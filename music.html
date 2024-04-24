@@ -12,87 +12,60 @@
         }
 
         .container {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
             padding: 20px;
         }
 
-        .search-container {
-            width: 30%;
+        .videos-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
         }
 
-        #searchInput {
-            padding: 10px;
-            width: calc(100% - 20px);
-            border-radius: 20px;
-            border: none;
-            outline: none;
-            margin-bottom: 10px;
-        }
-
-        #searchButton {
-            padding: 10px 20px;
-            background-color: #1DB954;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            outline: none;
-            width: calc(100% - 20px);
-        }
-
-        #searchButton:hover {
-            background-color: #1ed760;
-        }
-
-        #videosContainer {
-            width: 65%;
-        }
-
-        .video {
+        .video-card {
+            width: calc(25% - 20px);
             margin-bottom: 20px;
             background-color: #f9f9f9;
             padding: 10px;
             border-radius: 10px;
+            box-sizing: border-box;
         }
 
         .thumbnail {
             width: 100%;
             height: auto;
+            border-radius: 5px;
         }
 
         .title {
             margin-top: 10px;
-            font-size: 18px;
+            font-size: 14px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Search input and button -->
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="Search for music...">
-            <button id="searchButton">Search</button>
-        </div>
-
         <!-- Videos container -->
-        <div id="videosContainer">
+        <div class="videos-container" id="videosContainer">
             <!-- Trending music videos or search results will be displayed here -->
         </div>
     </div>
 
-    <!-- JavaScript code for fetching trending music videos and handling search -->
+    <!-- JavaScript code for fetching trending music videos -->
     <script>
         // Function to fetch trending music videos
         function fetchTrendingMusicVideos() {
             const apiKey = 'AIzaSyAAupl0BF00KNHLJHhztrW4mNWzCpmBOo0'; // Replace 'YOUR_YOUTUBE_API_KEY' with your actual YouTube Data API key
-            const apiUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet&chart=mostPopular&regionCode=US&maxResults=10&videoCategoryId=10&key=${apiKey}`;
+            const apiUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet&chart=mostPopular&regionCode=US&maxResults=20&videoCategoryId=10&key=${apiKey}`;
 
             fetch(apiUrl)
             .then(response => response.json())
             .then(data => {
-                displayVideos(data.items);
+                if (data && data.items) {
+                    displayVideos(data.items);
+                } else {
+                    console.error('Error fetching trending music videos: Response data or items are undefined.');
+                }
             })
             .catch(error => {
                 console.error('Error fetching trending music videos:', error);
@@ -102,11 +75,11 @@
         // Function to display videos
         function displayVideos(videos) {
             const videosContainer = document.getElementById('videosContainer');
-            videosContainer.innerHTML = '';
+            videosContainer.innerHTML = 'AIzaSyAAupl0BF00KNHLJHhztrW4mNWzCpmBOo0';
 
             videos.forEach(video => {
                 const videoCard = document.createElement('div');
-                videoCard.classList.add('video');
+                videoCard.classList.add('video-card');
 
                 const thumbnail = document.createElement('img');
                 thumbnail.classList.add('thumbnail');
@@ -124,31 +97,8 @@
             });
         }
 
-        // Function to search videos
-        function searchVideos(searchTerm) {
-            const apiKey = 'AIzaSyAAupl0BF00KNHLJHhztrW4mNWzCpmBOo0'; // Replace 'YOUR_YOUTUBE_API_KEY' with your actual YouTube Data API key
-            const apiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${searchTerm}&type=video&key=${apiKey}`;
-
-            fetch(apiUrl)
-            .then(response => response.json())
-            .then(data => {
-                displayVideos(data.items);
-            })
-            .catch(error => {
-                console.error('Error searching videos:', error);
-            });
-        }
-
         // Fetch trending music videos when the page loads
         window.onload = fetchTrendingMusicVideos;
-
-        // Add event listener for search button click
-        document.getElementById('searchButton').addEventListener('click', function() {
-            const searchTerm = document.getElementById('searchInput').value.trim();
-            if (searchTerm !== '') {
-                searchVideos(searchTerm);
-            }
-        });
     </script>
 </body>
 </html>
