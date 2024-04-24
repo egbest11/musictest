@@ -3,124 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Music Search</title>
+    <title>Trending Music Videos</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
         }
+
         .container {
-            max-width: 800px;
-            margin: 20px auto;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
             padding: 20px;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-        h1 {
-            text-align: center;
+
+        .search-container {
+            width: 30%;
         }
-        input[type="text"] {
-            width: 100%;
+
+        #searchInput {
             padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: #fff;
+            width: calc(100% - 20px);
+            border-radius: 20px;
             border: none;
-            border-radius: 5px;
+            outline: none;
+            margin-bottom: 10px;
+        }
+
+        #searchButton {
+            padding: 10px 20px;
+            background-color: #1DB954;
+            color: white;
+            border: none;
+            border-radius: 20px;
             cursor: pointer;
+            outline: none;
+            width: calc(100% - 20px);
         }
-        button:hover {
-            background-color: #0056b3;
+
+        #searchButton:hover {
+            background-color: #1ed760;
         }
-        #results {
-            margin-top: 20px;
+
+        #videosContainer {
+            width: 65%;
         }
+
         .video {
             margin-bottom: 20px;
-            cursor: pointer;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 10px;
         }
-        .video img {
+
+        .thumbnail {
             width: 100%;
             height: auto;
         }
-        .video .info {
-            padding: 10px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-        }
-        .video .title {
-            font-weight: bold;
+
+        .title {
+            margin-top: 10px;
+            font-size: 18px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>YouTube Music Search</h1>
-        <input type="text" id="searchInput" placeholder="Enter search query...">
-        <button onclick="search()">Search</button>
-        <div id="results"></div>
+        <!-- Search input and button -->
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search for music...">
+            <button id="searchButton">Search</button>
+        </div>
+
+        <!-- Videos container -->
+        <div id="videosContainer">
+            <!-- Trending music videos or search results will be displayed here -->
+        </div>
     </div>
 
+    <!-- JavaScript code for fetching trending music videos and handling search -->
     <script>
-        function search() {
-            var searchTerm = document.getElementById("searchInput").value;
-            var apiKey = "AIzaSyAAupl0BF00KNHLJHhztrW4mNWzCpmBOo0";
-            var url = "https://www.googleapis.com/youtube/v3/search?part=snippet&q=" + encodeURIComponent(searchTerm) + "&type=video&key=" + apiKey;
+        // Function to fetch trending music videos
+        function fetchTrendingMusicVideos() {
+            const apiKey = 'AIzaSyAAupl0BF00KNHLJHhztrW4mNWzCpmBOo0'; // Replace 'YOUR_YOUTUBE_API_KEY' with your actual YouTube Data API key
+            const apiUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet&chart=mostPopular&regionCode=US&maxResults=10&videoCategoryId=10&key=${apiKey}`;
 
-            fetch(url)
+            fetch(apiUrl)
             .then(response => response.json())
             .then(data => {
-                displayResults(data.items);
+                displayVideos(data.items);
             })
-            .catch(error => console.log('Error:', error));
-        }
-
-        function displayResults(videos) {
-            var resultsContainer = document.getElementById("results");
-            resultsContainer.innerHTML = "";
-
-            if (!videos || videos.length === 0) {
-                resultsContainer.innerHTML = "No videos found.";
-                return;
-            }
-
-            videos.forEach(video => {
-                var videoDiv = document.createElement("div");
-                videoDiv.classList.add("video");
-                videoDiv.onclick = function() {
-                    window.location.href = "video.html?id=" + video.id.videoId;
-                };
-
-                var thumbnail = document.createElement("img");
-                thumbnail.src = video.snippet.thumbnails.medium.url;
-
-                var infoDiv = document.createElement("div");
-                infoDiv.classList.add("info");
-
-                var title = document.createElement("div");
-                title.classList.add("title");
-                title.textContent = video.snippet.title;
-
-                var channel = document.createElement("div");
-                channel.textContent = "Channel: " + video.snippet.channelTitle;
-
-                infoDiv.appendChild(title);
-                infoDiv.appendChild(channel);
-
-                videoDiv.appendChild(thumbnail);
-                videoDiv.appendChild(infoDiv);
-
-                resultsContainer.appendChild(videoDiv);
+            .catch(error => {
+                console.error('Error fetching trending music videos:', error);
             });
         }
+
+        // Function to display videos
+        function displayVideos(videos) {
+            const videosContainer = document.getElementById('videosContainer');
+            videosContainer.innerHTML = '';
+
+            videos.forEach(video => {
+                const videoCard = document.createElement('div');
+                videoCard.classList.add('video');
+
+                const thumbnail = document.createElement('img');
+                thumbnail.classList.add('thumbnail');
+                thumbnail.src = video.snippet.thumbnails.medium.url;
+                thumbnail.alt = video.snippet.title;
+
+                const title = document.createElement('div');
+                title.classList.add('title');
+                title.textContent = video.snippet.title;
+
+                videoCard.appendChild(thumbnail);
+                videoCard.appendChild(title);
+
+                videosContainer.appendChild(videoCard);
+            });
+        }
+
+        // Function to search videos
+        function searchVideos(searchTerm) {
+            const apiKey = 'AIzaSyAAupl0BF00KNHLJHhztrW4mNWzCpmBOo0'; // Replace 'YOUR_YOUTUBE_API_KEY' with your actual YouTube Data API key
+            const apiUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${searchTerm}&type=video&key=${apiKey}`;
+
+            fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                displayVideos(data.items);
+            })
+            .catch(error => {
+                console.error('Error searching videos:', error);
+            });
+        }
+
+        // Fetch trending music videos when the page loads
+        window.onload = fetchTrendingMusicVideos;
+
+        // Add event listener for search button click
+        document.getElementById('searchButton').addEventListener('click', function() {
+            const searchTerm = document.getElementById('searchInput').value.trim();
+            if (searchTerm !== '') {
+                searchVideos(searchTerm);
+            }
+        });
     </script>
 </body>
 </html>
